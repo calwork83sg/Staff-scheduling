@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Schedule Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 2px solid #e94560;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            color: #e94560;
+            text-shadow: 0 0 20px rgba(233, 69, 96, 0.3);
+        }
+
+        header p {
+            color: #a0a0a0;
+            margin-top: 10px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(233, 69, 96, 0.3);
+            color: #e0e0e0;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .nav-tab:hover {
+            background: rgba(233, 69, 96, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .nav-tab.active {
+            background: #e94560;
+            border-color: #e94560;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h2 {
+            color: #e94560;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #b0b0b0;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #e94560;
+            box-shadow: 0 0 10px rgba(233, 69, 96, 0.2);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #e94560;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #ff6b6b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(233, 69, 96, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-danger {
+            background: #c0392b;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #e74c3c;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #2ecc71;
+        }
+
+        .staff-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .staff-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .staff-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateX(5px);
+        }
+
+        .staff-info h3 {
+            color: #e94560;
+            margin-bottom: 5px;
+        }
+
+        .staff-info p {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+        }
+
+        .staff-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .staff-actions button {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: 100px repeat(7, 1fr);
+            gap: 2px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .schedule-header {
+            background: #e94560;
+            color: white;
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .schedule-cell {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 15px 10px;
+            text-align: center;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .schedule-cell:hover {
+            background: rgba(233, 69, 96, 0.1);
+        }
+
+        .schedule-cell.assigned {
+            background: rgba(39, 174, 96, 0.15);
+            border: 1px solid rgba(39, 174, 96, 0.3);
+        }
+
+        .schedule-cell.conflict {
+            background: rgba(231, 76, 60, 0.15);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+
+        .schedule-cell .staff-name {
+            font-size: 0.85rem;
+            color: #2ecc71;
+            font-weight: 600;
+        }
+
+        .schedule-cell .shift-time {
+            font-size: 0.75rem;
+            color: #a0a0a0;
+            margin-top: 4px;
+        }
+
+        .day-label {
+            background: rgba(233, 69, 96, 0.2);
+            color: #e94560;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .rules-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .rule-item {
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 4px solid #e94560;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .rule-info h4 {
+            color: #e0e0e0;
+            margin-bottom: 5px;
+        }
+
+        .rule-info p {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+        }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .report-table th,
+        .report-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .report-table th {
+            background: rgba(233, 69, 96, 0.2);
+            color: #e94560;
+            font-weight: 600;
+        }
+
+        .report-table tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .hours-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .hours-ok {
+            background: rgba(39, 174, 96, 0.2);
+            color: #2ecc71;
+        }
+
+        .hours-warning {
+            background: rgba(241, 196, 15, 0.2);
+            color: #f1c40f;
+        }
+
+        .hours-over {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: #1a1a2e;
+            border: 1px solid rgba(233, 69, 96, 0.3);
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: modalSlide 0.3s ease;
+        }
+
+        @keyframes modalSlide {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal h2 {
+            color: #e94560;
+            margin-bottom: 20px;
+        }
+
+        .modal-close {
+            float: right;
+            font-size: 1.5rem;
+            color: #a0a0a0;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: #e94560;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-item:hover {
+            background: rgba(233, 69, 96, 0.1);
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #e94560;
+        }
+
+        .shift-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .shift-option {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .shift-option:hover {
+            border-color: #e94560;
+            background: rgba(233, 69, 96, 0.1);
+        }
+
+        .shift-option.selected {
+            border-color: #e94560;
+            background: rgba(233, 69, 96, 0.2);
+        }
+
+        .shift-option .time {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #e94560;
+        }
+
+        .shift-option .label {
+            font-size: 0.8rem;
+            color: #a0a0a0;
+            margin-top: 5px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .stat-card .number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #e94560;
+        }
+
+        .stat-card .label {
+            color: #a0a0a0;
+            margin-top: 5px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a0a0a0;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 16px 24px;
+            background: #27ae60;
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.error {
+            background: #e74c3c;
+        }
+
+        .requirement-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            background: rgba(233, 69, 96, 0.15);
+            border: 1px solid rgba(233, 69, 96, 0.3);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: #e94560;
+            margin: 2px;
+        }
+
+        @media (max-width: 768px) {
+            .schedule-grid {
+                font-size: 0.8rem;
+                overflow-x: auto;
+            }
+            
+            .staff-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .nav-tabs {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📅 Staff Schedule Manager</h1>
+            <p>Manage your team schedules with intelligent rule-based planning</p>
+        </header>
+
+        <nav class="nav-tabs">
+            <button class="nav-tab active" onclick="showSection('dashboard')">📊 Dashboard</button>
+            <button class="nav-tab" onclick="showSection('staff')">👥 Staff</button>
+            <button class="nav-tab" onclick="showSection('rules')">📋 Rules</button>
+            <button class="nav-tab" onclick="showSection('schedule')">🗓️ Schedule</button>
+            <button class="nav-tab" onclick="showSection('reports')">📈 Reports</button>
+        </nav>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="section active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="number" id="totalStaff">0</div>
+                    <div class="label">Total Staff</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="totalRules">0</div>
+                    <div class="label">Active Rules</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="totalHours">0</div>
+                    <div class="label">Hours This Week</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="coverageRate">0%</div>
+                    <div class="label">Coverage Rate</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>⚡ Quick Actions</h2>
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="showSection('staff'); openAddStaffModal()">
+                        ➕ Add New Staff
+                    </button>
+                    <button class="btn btn-secondary" onclick="showSection('rules'); openAddRuleModal()">
+                        ➕ Add Managerial Rule
+                    </button>
+                    <button class="btn btn-success" onclick="generateSchedule()">
+                        🔄 Generate Schedule
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportSchedule()">
+                        📥 Export Schedule
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📋 Today's Overview</h2>
+                <div id="todayOverview">
+                    <div class="empty-state">
+                        <p>No schedule generated yet. Click "Generate Schedule" to create one.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Staff Section -->
+        <div id="staff" class="section">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>👥 Staff Members</h2>
+                    <button class="btn btn-primary" onclick="openAddStaffModal()">➕ Add Staff</button>
+                </div>
+                <div id="staffList" class="staff-list">
+                    <div class="empty-state">
+                        <p>No staff members added yet.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rules Section -->
+        <div id="rules" class="section">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>📋 Managerial Rules</h2>
+                    <button class="btn btn-primary" onclick="openAddRuleModal()">➕ Add Rule</button>
+                </div>
+                <div id="rulesList" class="rules-list">
+                    <div class="empty-state">
+                        <p>No rules configured yet.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Schedule Section -->
+        <div id="schedule" class="section">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+                    <h2>🗓️ Monthly Schedule</h2>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <button class="btn btn-secondary" onclick="changeMonth(-1)">◀ Previous</button>
+                        <span id="currentMonthLabel" style="font-size: 1.2rem; font-weight: 600; min-width: 150px; text-align: center;"></span>
+                        <button class="btn btn-secondary" onclick="changeMonth(1)">Next ▶</button>
+                        <button class="btn btn-success" onclick="generateSchedule()">🔄 Generate</button>
+                    </div>
+                </div>
+                <div id="scheduleContainer">
+                    <div class="empty-state">
+                        <p>Click "Generate" to create a schedule based on your rules and staff requirements.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Section -->
+        <div id="reports" class="section">
+            <div class="card">
+                <h2>📈 Weekly Hours Report</h2>
+                <div style="margin-bottom: 20px;">
+                    <label>Select Week:</label>
+                    <input type="week" id="reportWeek" style="max-width: 300px; margin-top: 10px;">
+                </div>
+                <div id="reportContainer">
+                    <div class="empty-state">
+                        <p>Select a week to view the hours report.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Staff Modal -->
+    <div class="modal-overlay" id="addStaffModal">
+        <div class="modal">
+            <span class="modal-close" onclick="closeModal('addStaffModal')">&times;</span>
+            <h2>➕ Add New Staff Member</h2>
+            <form id="addStaffForm" onsubmit="saveStaff(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First Name *</label>
+                        <input type="text" id="staffFirstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name *</label>
+                        <input type="text" id="staffLastName" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="staffEmail">
+                </div>
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="tel" id="staffPhone">
+                </div>
+                <div class="form-group">
+                    <label>Role/Position</label>
+                    <input type="text" id="staffRole" placeholder="e.g., Server, Chef, Manager">
+                </div>
+                <div class="form-group">
+                    <label>Max Weekly Hours</label>
+                    <input type="number" id="staffMaxHours" value="40" min="1" max="80">
+                </div>
+                <div class="form-group">
+                    <label>Preferred Weekly Hours</label>
+                    <input type="number" id="staffPreferredHours" value="30" min="1" max="80">
+                </div>
+                <div class="form-group">
+                    <label>Available Days</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item"><input type="checkbox" value="0" class="staffDay"> Mon</label>
+                        <label class="checkbox-item"><input type="checkbox" value="1" class="staffDay"> Tue</label>
+                        <label class="checkbox-item"><input type="checkbox" value="2" class="staffDay"> Wed</label>
+                        <label class="checkbox-item"><input type="checkbox" value="3" class="staffDay"> Thu</label>
+                        <label class="checkbox-item"><input type="checkbox" value="4" class="staffDay"> Fri</label>
+                        <label class="checkbox-item"><input type="checkbox" value="5" class="staffDay"> Sat</label>
+                        <label class="checkbox-item"><input type="checkbox" value="6" class="staffDay"> Sun</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Preferred Shifts</label>
+                    <div class="shift-selector">
+                        <div class="shift-option" onclick="selectShift(this, 'morning')">
+                            <div class="time">6AM-2PM</div>
+                            <div class="label">Morning</div>
+                        </div>
+                        <div class="shift-option" onclick="selectShift(this, 'afternoon')">
+                            <div class="time">2PM-10PM</div>
+                            <div class="label">Afternoon</div>
+                        </div>
+                        <div class="shift-option" onclick="selectShift(this, 'night')">
+                            <div class="time">10PM-6AM</div>
+                            <div class="label">Night</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 25px;">
+                    <button type="submit" class="btn btn-primary">💾 Save Staff</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('addStaffModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Rule Modal -->
+    <div class="modal-overlay" id="addRuleModal">
+        <div class="modal">
+            <span class="modal-close" onclick="closeModal('addRuleModal')">&times;</span>
+            <h2>➕ Add Managerial Rule</h2>
+            <form id="addRuleForm" onsubmit="saveRule(event)">
+                <div class="form-group">
+                    <label>Rule Name *</label>
+                    <input type="text" id="ruleName" required placeholder="e.g., Minimum 2 staff per shift">
+                </div>
+                <div class="form-group">
+                    <label>Rule Type *</label>
+                    <select id="ruleType" onchange="updateRuleFields()">
+                        <option value="min_staff">Minimum Staff Per Shift</option>
+                        <option value="max_hours">Maximum Hours Per Week</option>
+                        <option value="min_hours">Minimum Hours Per Week</option>
+                        <option value="consecutive_days">Max Consecutive Work Days</option>
+                        <option value="rest_between">Minimum Rest Between Shifts</option>
+                        <option value="skill_required">Required Skill/Role Per Shift</option>
+                        <option value="no_clopen">No Close-Open (Clopening)</option>
+                    </select>
+                </div>
+                <div class="form-group" id="ruleValueGroup">
+                    <label>Value *</label>
+                    <input type="number" id="ruleValue" required placeholder="e.g., 2">
+                </div>
+                <div class="form-group" id="ruleRoleGroup" style="display: none;">
+                    <label>Required Role</label>
+                    <input type="text" id="ruleRole" placeholder="e.g., Manager, Supervisor">
+                </div>
+                <div class="form-group">
+                    <label>Applies To</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item"><input type="checkbox" value="all" class="ruleApply" checked> All Staff</label>
+                        <label class="checkbox-item"><input type="checkbox" value="morning" class="ruleApply"> Morning Only</label>
+                        <label class="checkbox-item"><input type="checkbox" value="afternoon" class="ruleApply"> Afternoon Only</label>
+                        <label class="checkbox-item"><input type="checkbox" value="night" class="ruleApply"> Night Only</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Priority</label>
+                    <select id="rulePriority">
+                        <option value="high">High (Must Follow)</option>
+                        <option value="medium" selected>Medium (Try to Follow)</option>
+                        <option value="low">Low (Flexible)</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 25px;">
+                    <button type="submit" class="btn btn-primary">💾 Save Rule</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('addRuleModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Staff Modal -->
+    <div class="modal-overlay" id="editStaffModal">
+        <div class="modal">
+            <span class="modal-close" onclick="closeModal('editStaffModal')">&times;</span>
+            <h2>✏️ Edit Staff Member</h2>
+            <form id="editStaffForm" onsubmit="updateStaff(event)">
+                <input type="hidden" id="editStaffId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First Name *</label>
+                        <input type="text" id="editStaffFirstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name *</label>
+                        <input type="text" id="editStaffLastName" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="editStaffEmail">
+                </div>
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="tel" id="editStaffPhone">
+                </div>
+                <div class="form-group">
+                    <label>Role/Position</label>
+                    <input type="text" id="editStaffRole">
+                </div>
+                <div class="form-group">
+                    <label>Max Weekly Hours</label>
+                    <input type="number" id="editStaffMaxHours" min="1" max="80">
+                </div>
+                <div class="form-group">
+                    <label>Preferred Weekly Hours</label>
+                    <input type="number" id="editStaffPreferredHours" min="1" max="80">
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 25px;">
+                    <button type="submit" class="btn btn-primary">💾 Update Staff</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('editStaffModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Assign Shift Modal -->
+    <div class="modal-overlay" id="assignShiftModal">
+        <div class="modal">
+            <span class="modal-close" onclick="closeModal('assignShiftModal')">&times;</span>
+            <h2>🕐 Assign Shift</h2>
+            <div id="assignShiftContent">
+                <p>Date: <span id="assignDate"></span></p>
+                <div class="form-group" style="margin-top: 15px;">
+                    <label>Select Staff Member</label>
+                    <select id="assignStaffSelect"></select>
+                </div>
+                <div class="form-group">
+                    <label>Shift Type</label>
+                    <div class="shift-selector">
+                        <div class="shift-option" onclick="selectAssignShift(this, 'morning')">
+                            <div class="time">6AM-2PM</div>
+                            <div class="label">Morning (8h)</div>
+                        </div>
+                        <div class="shift-option" onclick="selectAssignShift(this, 'afternoon')">
+                            <div class="time">2PM-10PM</div>
+                            <div class="label">Afternoon (8h)</div>
+                        </div>
+                        <div class="shift-option" onclick="selectAssignShift(this, 'night')">
+                            <div class="time">10PM-6AM</div>
+                            <div class="label">Night (8h)</div>
+                        </div>
+                        <div class="shift-option" onclick="selectAssignShift(this, 'custom')">
+                            <div class="time">Custom</div>
+                            <div class="label">Set Hours</div>
+                        </div>
+                    </div>
+                </div>
+                <div id="customHours" style="display: none;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Start Time</label>
+                            <input type="time" id="customStart">
+                        </div>
+                        <div class="form-group">
+                            <label>End Time</label>
+                            <input type="time" id="customEnd">
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 25px;">
+                    <button class="btn btn-primary" onclick="confirmAssignShift()">✅ Assign</button>
+                    <button class="btn btn-danger" onclick="removeShift()">❌ Remove</button>
+                    <button class="btn btn-secondary" onclick="closeModal('assignShiftModal')">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Data Storage
+        let staff = JSON.parse(localStorage.getItem('staff')) || [];
+        let rules = JSON.parse(localStorage.getItem('rules')) || [];
+        let schedule = JSON.parse(localStorage.getItem('schedule')) || {};
+        let currentMonth = new Date();
+        let selectedShiftType = null;
+        let selectedAssignShift = null;
+        let currentAssignCell = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            renderStaff();
+            renderRules();
+            updateDashboard();
+            
+            // Set current week for reports
+            const today = new Date();
+            const weekStart = new Date(today.setDate(today.getDate() - today.getDay() + 1));
+            const year = weekStart.getFullYear();
+            const week = String(Math.ceil((weekStart - new Date(year, 0, 1)) / 604800000) + 1).padStart(2, '0');
+            document.getElementById('reportWeek').value = `${year}-W${week}`;
+            
+            document.getElementById('reportWeek').addEventListener('change', generateReport);
+        });
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + (type === 'error' ? 'error' : '');
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (sectionId === 'schedule') renderSchedule();
+            if (sectionId === 'reports') generateReport();
+        }
+
+        // Staff Management
+        function openAddStaffModal() {
+            document.getElementById('addStaffForm').reset();
+            document.querySelectorAll('.shift-option').forEach(s => s.classList.remove('selected'));
+            selectedShiftType = null;
+            document.getElementById('addStaffModal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function selectShift(element, type) {
+            document.querySelectorAll('#addStaffModal .shift-option').forEach(s => s.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedShiftType = type;
+        }
+
+        function selectAssignShift(element, type) {
+            document.querySelectorAll('#assignShiftModal .shift-option').forEach(s => s.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedAssignShift = type;
+            document.getElementById('customHours').style.display = type === 'custom' ? 'block' : 'none';
+        }
+
+        function saveStaff(event) {
+            event.preventDefault();
+            const availableDays = Array.from(document.querySelectorAll('.staffDay:checked')).map(cb => parseInt(cb.value));
+            
+            const newStaff = {
+                id: Date.now(),
+                firstName: document.getElementById('staffFirstName').value,
+                lastName: document.getElementById('staffLastName').value,
+                email: document.getElementById('staffEmail').value,
+                phone: document.getElementById('staffPhone').value,
+                role: document.getElementById('staffRole').value,
+                maxHours: parseInt(document.getElementById('staffMaxHours').value),
+                preferredHours: parseInt(document.getElementById('staffPreferredHours').value),
+                availableDays: availableDays,
+                preferredShift: selectedShiftType,
+                createdAt: new Date().toISOString()
+            };
+
+            staff.push(newStaff);
+            localStorage.setItem('staff', JSON.stringify(staff));
+            closeModal('addStaffModal');
+            renderStaff();
+            updateDashboard();
+            showToast('Staff member added successfully!');
+        }
+
+        function renderStaff() {
+            const container = document.getElementById('staffList');
+            if (staff.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No staff members added yet.</p></div>';
+                return;
+            }
+
+            container.innerHTML = staff.map(s => `
+                <div class="staff-item">
+                    <div class="staff-info">
+                        <h3>${s.firstName} ${s.lastName}</h3>
+                        <p>📧 ${s.email || 'No email'} | 📱 ${s.phone || 'No phone'}</p>
+                        <p>🎯 ${s.role || 'No role'} | Max: ${s.maxHours}h/week | Preferred: ${s.preferredHours}h/week</p>
+                        <p>📅 Available: ${s.availableDays.map(d => ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][d]).join(', ')}</p>
+                        <p>🌅 Preferred Shift: ${s.preferredShift ? s.preferredShift.charAt(0).toUpperCase() + s.preferredShift.slice(1) : 'Any'}</p>
+                    </div>
+                    <div class="staff-actions">
+                        <button class="btn btn-secondary" onclick="editStaff(${s.id})">✏️ Edit</button>
+                        <button class="btn btn-danger" onclick="deleteStaff(${s.id})">🗑️ Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function editStaff(id) {
+            const s = staff.find(x => x.id === id);
+            if (!s) return;
+
+            document.getElementById('editStaffId').value = s.id;
+            document.getElementById('editStaffFirstName').value = s.firstName;
+            document.getElementById('editStaffLastName').value = s.lastName;
+            document.getElementById('editStaffEmail').value = s.email || '';
+            document.getElementById('editStaffPhone').value = s.phone || '';
+            document.getElementById('editStaffRole').value = s.role || '';
+            document.getElementById('editStaffMaxHours').value = s.maxHours;
+            document.getElementById('editStaffPreferredHours').value = s.preferredHours;
+
+            document.getElementById('editStaffModal').classList.add('active');
+        }
+
+        function updateStaff(event) {
+            event.preventDefault();
+            const id = parseInt(document.getElementById('editStaffId').value);
+            const index = staff.findIndex(s => s.id === id);
+            
+            if (index !== -1) {
+                staff[index] = {
+                    ...staff[index],
+                    firstName: document.getElementById('editStaffFirstName').value,
+                    lastName: document.getElementById('editStaffLastName').value,
+                    email: document.getElementById('editStaffEmail').value,
+                    phone: document.getElementById('editStaffPhone').value,
+                    role: document.getElementById('editStaffRole').value,
+                    maxHours: parseInt(document.getElementById('editStaffMaxHours').value),
+                    preferredHours: parseInt(document.getElementById('editStaffPreferredHours').value)
+                };
+                
+                localStorage.setItem('staff', JSON.stringify(staff));
+                closeModal('editStaffModal');
+                renderStaff();
+                updateDashboard();
+                showToast('Staff updated successfully!');
+            }
+        }
+
+        function deleteStaff(id) {
+            if (!confirm('Are you sure you want to delete this staff member?')) return;
+            staff = staff.filter(s => s.id !== id);
+            localStorage.setItem('staff', JSON.stringify(staff));
+            renderStaff();
+            updateDashboard();
+            showToast('Staff member deleted.');
+        }
+
+        // Rules Management
+        function openAddRuleModal() {
+            document.getElementById('addRuleForm').reset();
+            document.getElementById('addRuleModal').classList.add('active');
+        }
+
+        function updateRuleFields() {
+            const type = document.getElementById('ruleType').value;
+            const roleGroup = document.getElementById('ruleRoleGroup');
+            const valueGroup = document.getElementById('ruleValueGroup');
+            
+            if (type === 'skill_required') {
+                roleGroup.style.display = 'block';
+                valueGroup.style.display = 'none';
+            } else {
+                roleGroup.style.display = 'none';
+                valueGroup.style.display = 'block';
+            }
+        }
+
+        function saveRule(event) {
+            event.preventDefault();
+            const appliesTo = Array.from(document.querySelectorAll('.ruleApply:checked')).map(cb => cb.value);
+
+            const newRule = {
+                id: Date.now(),
+                name: document.getElementById('ruleName').value,
+                type: document.getElementById('ruleType').value,
+                value: document.getElementById('ruleValue').value,
+                role: document.getElementById('ruleRole').value,
+                appliesTo: appliesTo,
+                priority: document.getElementById('rulePriority').value,
+                active: true
+            };
+
+            rules.push(newRule);
+            localStorage.setItem('rules', JSON.stringify(rules));
+            closeModal('addRuleModal');
+            renderRules();
+            updateDashboard();
+            showToast('Rule added successfully!');
+        }
+
+        function renderRules() {
+            const container = document.getElementById('rulesList');
+            if (rules.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No rules configured yet.</p></div>';
+                return;
+            }
+
+            const ruleTypeLabels = {
+                'min_staff': 'Minimum Staff',
+                'max_hours': 'Max Hours/Week',
+                'min_hours': 'Min Hours/Week',
+                'consecutive_days': 'Max Consecutive Days',
+                'rest_between': 'Min Rest Between',
+                'skill_required': 'Required Skill',
+                'no_clopen': 'No Clopening'
+            };
+
+            container.innerHTML = rules.map(r => `
+                <div class="rule-item">
+                    <div class="rule-info">
+                        <h4>${r.name}</h4>
+                        <p>Type: ${ruleTypeLabels[r.type] || r.type} | Priority: ${r.priority.toUpperCase()}</p>
+                        <p>Applies to: ${r.appliesTo.join(', ')}</p>
+                    </div>
+                    <div class="staff-actions">
+                        <button class="btn btn-danger" onclick="deleteRule(${r.id})">🗑️ Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function deleteRule(id) {
+            if (!confirm('Delete this rule?')) return;
+            rules = rules.filter(r => r.id !== id);
+            localStorage.setItem('rules', JSON.stringify(rules));
+            renderRules();
+            updateDashboard();
+            showToast('Rule deleted.');
+        }
+
+        // Schedule Generation
+        function changeMonth(delta) {
+            currentMonth.setMonth(currentMonth.getMonth() + delta);
+            renderSchedule();
+        }
+
+        function renderSchedule() {
+            const container = document.getElementById('scheduleContainer');
+            const year = currentMonth.getFullYear();
+            const month = currentMonth.getMonth();
+            
+            document.getElementById('currentMonthLabel').textContent = 
+                currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const firstDay = new Date(year, month, 1).getDay();
+            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+            let html = '<div class="schedule-grid">';
+            
+            // Header
+            html += '<div class="schedule-header">Staff</div>';
+            dayNames.forEach(day => {
+                html += `<div class="schedule-header">${day}</div>`;
+            });
+
+            // If no staff
+            if (staff.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>Add staff members first to create a schedule.</p></div>';
+                return;
+            }
+
+            // Rows for each staff member
+            staff.forEach(s => {
+                html += `<div class="schedule-cell day-label">${s.firstName}</div>`;
+                
+                for (let d = 0; d < 7; d++) {
+                    const dateKey = `${year}-${month}-${d}`;
+                    const shift = schedule[dateKey] && schedule[dateKey][s.id];
+                    
+                    html += `
+                        <div class="schedule-cell ${shift ? 'assigned' : ''}" 
+                             onclick="openAssignShift(${s.id}, '${dateKey}', ${d})">
+                            ${shift ? `
+                                <span class="staff-name">${shift.type}</span>
+                                <span class="shift-time">${shift.hours}h</span>
+                            ` : '<span style="color: #555;">+</span>'}
+                        </div>
+                    `;
+                }
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function openAssignShift(staffId, dateKey, dayOfWeek) {
+            currentAssignCell = { staffId, dateKey, dayOfWeek };
+            const s = staff.find(x => x.id === staffId);
+            
+            document.getElementById('assignDate').textContent = 
+                new Date(currentMonth.getFullYear(), currentMonth.getMonth(), dayOfWeek + 1)
+                .toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+
+            const select = document.getElementById('assignStaffSelect');
+            select.innerHTML = staff.map(s => 
+                `<option value="${s.id}" ${s.id === staffId ? 'selected' : ''}>${s.firstName} ${s.lastName}</option>`
+            ).join('');
+
+            document.querySelectorAll('#assignShiftModal .shift-option').forEach(s => s.classList.remove('selected'));
+            selectedAssignShift = null;
+            document.getElementById('customHours').style.display = 'none';
+            
+            document.getElementById('assignShiftModal').classList.add('active');
+        }
+
+        function confirmAssignShift() {
+            if (!selectedAssignShift) {
+                showToast('Please select a shift type.', 'error');
+                return;
+            }
+
+            const staffId = parseInt(document.getElementById('assignStaffSelect').value);
+            const { dateKey } = currentAssignCell;
+            
+            let hours = 8;
+            let shiftType = selectedAssignShift;
+
+            if (selectedAssignShift === 'custom') {
+                const start = document.getElementById('customStart').value;
+                const end = document.getElementById('customEnd').value;
+                if (!start || !end) {
+                    showToast('Please set custom hours.', 'error');
+                    return;
+                }
+                const startH = parseInt(start.split(':')[0]);
+                const endH = parseInt(end.split(':')[0]);
+                hours = endH - startH;
+                if (hours < 0) hours += 24;
+            }
+
+            if (!schedule[dateKey]) schedule[dateKey] = {};
+            schedule[dateKey][staffId] = {
+                type: shiftType,
+                hours: hours,
+                date: dateKey
+            };
+
+            localStorage.setItem('schedule', JSON.stringify(schedule));
+            closeModal('assignShiftModal');
+            renderSchedule();
+            showToast('Shift assigned successfully!');
+        }
+
+        function removeShift() {
+            const { staffId, dateKey } = currentAssignCell;
+            if (schedule[dateKey]) {
+                delete schedule[dateKey][staffId];
+                if (Object.keys(schedule[dateKey]).length === 0) {
+                    delete schedule[dateKey];
+                }
+            }
+            localStorage.setItem('schedule', JSON.stringify(schedule));
+            closeModal('assignShiftModal');
+            renderSchedule();
+            showToast('Shift removed.');
+        }
+
+        function generateSchedule() {
+            if (staff.length === 0) {
+                showToast('Add staff members first!', 'error');
+                return;
+            }
+
+            // Simple auto-scheduler based on preferences and rules
+            const year = currentMonth.getFullYear();
+            const month = currentMonth.getMonth();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            schedule = {}; // Reset
+
+            // For each day of the month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                const dayOfWeek = date.getDay();
+                const dateKey = `${year}-${month}-${dayOfWeek}`;
+                
+                // Check minimum staff rule
+                const minStaffRule = rules.find(r => r.type === 'min_staff');
+                const minStaff = minStaffRule ? parseInt(minStaffRule.value) : 1;
+
+                // Sort staff by availability and preference
+                const availableStaff = staff.filter(s => 
+                    s.availableDays.includes(dayOfWeek === 0 ? 6 : dayOfWeek - 1)
+                );
+
+                // Assign shifts trying to meet preferences
+                availableStaff.forEach((s, index) => {
+                    if (index < minStaff * 3) { // 3 shifts per day
+                        const shiftTypes = ['morning', 'afternoon', 'night'];
+                        const preferredShift = s.preferredShift || shiftTypes[index % 3];
+                        
+                        if (!schedule[dateKey]) schedule[dateKey] = {};
+                        schedule[dateKey][s.id] = {
+                            type: preferredShift,
+                            hours: 8,
+                            date: dateKey
+                        };
+                    }
+                });
+            }
+
+            localStorage.setItem('schedule', JSON.stringify(schedule));
+            renderSchedule();
+            updateDashboard();
+            showToast('Schedule generated successfully!');
+        }
+
+        // Reports
+        function generateReport() {
+            const weekInput = document.getElementById('reportWeek').value;
+            if (!weekInput) return;
+
+            const [year, weekStr] = weekInput.split('-W');
+            const week = parseInt(weekStr);
+            
+            // Calculate week start date
+            const jan1 = new Date(year, 0, 1);
+            const weekStart = new Date(jan1.getTime() + (week - 1) * 7 * 24 * 60 * 60 * 1000);
+            weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
+
+            const reportData = staff.map(s => {
+                let totalHours = 0;
+                let daysWorked = 0;
+                
+                for (let i = 0; i < 7; i++) {
+                    const date = new Date(weekStart);
+                    date.setDate(date.getDate() + i);
+                    const dateKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDay()}`;
+                    
+                    if (schedule[dateKey] && schedule[dateKey][s.id]) {
+                        totalHours += schedule[dateKey][s.id].hours;
+                        daysWorked++;
+                    }
+                }
+
+                const status = totalHours > s.maxHours ? 'over' : 
+                              totalHours < s.preferredHours * 0.8 ? 'warning' : 'ok';
+
+                return {
+                    ...s,
+                    totalHours,
+                    daysWorked,
+                    status
+                };
+            });
+
+            const container = document.getElementById('reportContainer');
+            container.innerHTML = `
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>Staff Member</th>
+                            <th>Role</th>
+                            <th>Days Worked</th>
+                            <th>Total Hours</th>
+                            <th>Preferred</th>
+                            <th>Max</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${reportData.map(r => `
+                            <tr>
+                                <td><strong>${r.firstName} ${r.lastName}</strong></td>
+                                <td>${r.role || '-'}</td>
+                                <td>${r.daysWorked}</td>
+                                <td>${r.totalHours}h</td>
+                                <td>${r.preferredHours}h</td>
+                                <td>${r.maxHours}h</td>
+                                <td><span class="hours-badge hours-${r.status}">
+                                    ${r.status === 'ok' ? '✅ On Track' : 
+                                      r.status === 'over' ? '⚠️ Over Limit' : '⚡ Under Hours'}
+                                </span></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                <div style="margin-top: 20px; padding: 20px; background: rgba(255,255,255,0.03); border-radius: 12px;">
+                    <h3 style="color: #e94560; margin-bottom: 15px;">📊 Summary</h3>
+                    <p>Total Staff: ${reportData.length} | 
+                       Total Hours Scheduled: ${reportData.reduce((a, b) => a + b.totalHours, 0)}h | 
+                       Average per Staff: ${(reportData.reduce((a, b) => a + b.totalHours, 0) / reportData.length || 0).toFixed(1)}h</p>
+                </div>
+            `;
+        }
+
+        function updateDashboard() {
+            document.getElementById('totalStaff').textContent = staff.length;
+            document.getElementById('totalRules').textContent = rules.length;
+            
+            let totalHours = 0;
+            Object.values(schedule).forEach(day => {
+                Object.values(day).forEach(shift => {
+                    totalHours += shift.hours;
+                });
+            });
+            document.getElementById('totalHours').textContent = totalHours;
+
+            // Simple coverage calculation
+            const daysWithShifts = Object.keys(schedule).length;
+            const coverage = Math.min(100, Math.round((daysWithShifts / 30) * 100));
+            document.getElementById('coverageRate').textContent = coverage + '%';
+
+            // Today's overview
+            const today = new Date();
+            const todayKey = `${today.getFullYear()}-${today.getMonth()}-${today.getDay()}`;
+            const todayShifts = schedule[todayKey] || {};
+            
+            const overview = document.getElementById('todayOverview');
+            if (Object.keys(todayShifts).length > 0) {
+                overview.innerHTML = `
+                    <div class="staff-list">
+                        ${Object.entries(todayShifts).map(([staffId, shift]) => {
+                            const s = staff.find(x => x.id === parseInt(staffId));
+                            return `
+                                <div class="staff-item">
+                                    <div class="staff-info">
+                                        <h3>${s ? s.firstName + ' ' + s.lastName : 'Unknown'}</h3>
+                                        <p>🕐 ${shift.type.toUpperCase()} shift | ${shift.hours} hours</p>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            } else {
+                overview.innerHTML = '<div class="empty-state"><p>No shifts scheduled for today.</p></div>';
+            }
+        }
+
+        function exportSchedule() {
+            const data = {
+                staff,
+                rules,
+                schedule,
+                exportedAt: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `schedule-${currentMonth.toISOString().slice(0, 7)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Schedule exported successfully!');
+        }
+
+        // Close modals on overlay click
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) overlay.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>
